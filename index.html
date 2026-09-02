@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>PACE TRACKER PRO // Güvenli Terminal</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root[data-theme="light"] {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --header-bg: #0f172a;
+      --header-text: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #0284c7;
+      --accent-soft: rgba(2, 132, 199, 0.1);
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.1);
+      --hud-border: 1px solid #cbd5e1;
+      --mono-font: "JetBrains Mono", "Courier New", monospace;
+      --sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #090d14;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --header-bg: #090d14;
+      --header-text: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --danger-soft: rgba(248, 113, 113, 0.12);
+      --hud-border: 1px solid #1f293d;
+      --mono-font: "JetBrains Mono", "Courier New", monospace;
+      --sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--sans-font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 24px;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-title {
+      font-family: var(--mono-font);
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-status {
+      font-size: 0.62rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--success);
+      color: #000;
+      font-weight: 800;
+    }
+
+    .theme-toggle-btn {
+      background: rgba(255,255,255,0.15);
+      color: inherit;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .telemetry-strip {
+      background: var(--card-bg);
+      border-bottom: var(--hud-border);
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono-font);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .telemetry-val { color: var(--accent); font-weight: 800; }
+
+    #alertBanner {
+      display: none;
+      margin: 10px 14px 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--warn);
+      font-size: 0.75rem;
+      font-weight: 600;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .container {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hud-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .hud-card {
+      background: var(--card-bg);
+      border: var(--hud-border);
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .hud-num {
+      font-family: var(--mono-font);
+      font-size: 1.9rem;
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--text-main);
+    }
+
+    .hud-caption {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .action-btn-main {
+      width: 100%;
+      min-height: 52px;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: var(--mono-font);
+      cursor: pointer;
+      border: none;
+      background: var(--accent);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .action-btn-main.running { background: var(--danger); }
+
+    .nav-segmented {
+      display: flex;
+      background: var(--card-bg);
+      border: var(--hud-border);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .nav-seg-item {
+      flex: 1;
+      min-height: 38px;
+      border: none;
+      background: transparent;
+      border-radius: 7px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-seg-item.active { background: var(--accent); color: #ffffff; }
+
+    .tab-section {
+      display: none;
+      background: var(--card-bg);
+      border: var(--hud-border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .tab-section.active { display: block; }
+
+    .section-title {
+      font-family: var(--mono-font);
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pulse-phase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .pulse-phase-box {
+      background: var(--bg);
+      border: var(--hud-border);
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+
+    .pulse-phase-val {
+      font-family: var(--mono-font);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--danger);
+    }
+
+    .pulse-phase-lbl {
+      font-size: 0.58rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 10px;
+      background: var(--bg);
+      border: var(--hud-border);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: var(--mono-font);
+      font-size: 0.8rem;
+      font-weight: 700;
+      outline: none;
+    }
+
+    input:disabled, select:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      min-height: 40px;
+      padding: 0 14px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .stats-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .stat-mini-card {
+      background: var(--bg);
+      border: var(--hud-border);
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+
+    .stat-mini-val {
+      font-family: var(--mono-font);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .stat-mini-lbl {
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .history-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .history-item {
+      background: var(--bg);
+      border: var(--hud-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hist-info { display: flex; flex-direction: column; gap: 2px; }
+    .hist-date { font-family: var(--mono-font); font-size: 0.68rem; font-weight: 800; color: var(--text-muted); }
+    .hist-metrics { font-family: var(--mono-font); font-size: 0.82rem; font-weight: 800; display: flex; gap: 6px; }
+    .hist-sub { font-size: 0.65rem; color: var(--text-muted); }
+
+    .hist-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn-delete-item {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-gpx-item {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title">
+      <span>PACE PRO // SECURE</span>
+      <span id="gpsStateBadge" class="badge-status">GPS BEKLENİYOR</span>
+    </div>
+    <button class="theme-toggle-btn" onclick="toggleThemeMode()">🌓 TEMA</button>
+  </header>
+
+  <div class="telemetry-strip">
+    <div>YÖN: <span id="valAzimuth" class="telemetry-val">000°</span> [<span id="valCardinal" class="telemetry-val">K</span>]</div>
+    <div>RAKIM: <span id="valAltitude" class="telemetry-val">--</span> M</div>
+    <div>EĞİM: <span id="valElevationGain" class="telemetry-val">+0</span> M</div>
+  </div>
+
+  <div id="alertBanner">
+    <span id="alertMessage">🌧️ HAVA İKAZI</span>
+    <button onclick="dismissAlert()" style="background:none; border:none; color:inherit; font-weight:900; cursor:pointer;">[KAPAT]</button>
+  </div>
+
+  <div class="container">
+    <div class="hud-grid">
+      <div class="hud-card">
+        <div id="uiDuration" class="hud-num">00:00</div>
+        <div class="hud-caption">SÜRE (DK:SN)</div>
+      </div>
+      <div class="hud-card">
+        <div id="uiDistance" class="hud-num">0.00</div>
+        <div class="hud-caption">MESAFE (KM)</div>
+      </div>
+      <div class="hud-card">
+        <div id="uiSpeed" class="hud-num">0.0</div>
+        <div class="hud-caption">HIZ (KM/S)</div>
+      </div>
+      <div class="hud-card">
+        <div id="uiPace" class="hud-num">--'--"</div>
+        <div class="hud-caption">TEMPO (DK/KM)</div>
+      </div>
+      <div class="hud-card">
+        <div id="uiCalories" class="hud-num">0</div>
+        <div class="hud-caption">KALORİ (KCAL)</div>
+      </div>
+      <div class="hud-card">
+        <div id="uiSteps" class="hud-num">0</div>
+        <div class="hud-caption">ADIM SAYISI</div>
+      </div>
+    </div>
+
+    <button id="btnMainToggle" class="action-btn-main" onclick="handleWalkToggle()">YÜRÜYÜŞÜ BAŞLAT 🚶‍♂️</button>
+
+    <div class="nav-segmented">
+      <button class="nav-seg-item active" onclick="showTab('tabHealth', this)">NABIZ & TARTIM</button>
+      <button class="nav-seg-item" onclick="showTab('tabStats', this)">ORTALAMALAR</button>
+      <button class="nav-seg-item" onclick="showTab('tabProfile', this)">PROFİL</button>
+      <button class="nav-seg-item" onclick="showTab('tabHistory', this)">GEÇMİŞ</button>
+    </div>
+
+    <!-- SEKME 1: Nabız ve Tartım -->
+    <div id="tabHealth" class="tab-section active">
+      <div class="section-title">
+        <span>3 FAZLI NABIZ TAKİBİ</span>
+        <span id="sessionPhaseBadge" style="font-size:0.65rem; color:var(--accent);">DURUM: BEKLEMEDE</span>
+      </div>
+
+      <div class="pulse-phase-grid">
+        <div class="pulse-phase-box">
+          <div id="dispPrePulse" class="pulse-phase-val">--</div>
+          <div class="pulse-phase-lbl">ÖNCESİ (BAŞLANGIÇ)</div>
+        </div>
+        <div class="pulse-phase-box">
+          <div id="dispLiveAvgPulse" class="pulse-phase-val">--</div>
+          <div class="pulse-phase-lbl">SIRASINDA (ORT)</div>
+        </div>
+        <div class="pulse-phase-box">
+          <div id="dispPostPulse" class="pulse-phase-val">--</div>
+          <div class="pulse-phase-lbl">SONRASI (BİTİŞ)</div>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-group">
+          <label class="field-label">NABIZ FAZI</label>
+          <select id="pulsePhaseSelect">
+            <option value="pre">Yürüyüş Öncesi</option>
+            <option value="during" disabled>Yürüyüş Sırasında</option>
+            <option value="post" disabled>Yürüyüş Sonrası</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">DEĞER (BPM)</label>
+          <div style="display:flex; gap:6px;">
+            <input type="number" id="inputPulseValue" placeholder="Örn: 120" min="40" max="220" />
+            <button class="btn-secondary" onclick="recordPhasePulse()">EKLE</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:14px;">
+        <span>TARTIM VE SIVI KAYBI</span>
+      </div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label class="field-label">ÖNCEKİ KİLO</label>
+          <input type="number" id="inputStartWeight" step="0.1" placeholder="KG" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">SONRAKİ KİLO</label>
+          <div style="display:flex; gap:6px;">
+            <input type="number" id="inputEndWeight" step="0.1" placeholder="KG" disabled />
+            <button id="btnSavePostWeight" class="btn-secondary" onclick="updatePostWeightRecord()" disabled>İŞLE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEKME 2: Ortalamalar -->
+    <div id="tabStats" class="tab-section">
+      <div class="section-title"><span>GEÇMİŞ YÜRÜYÜŞ ORTALAMALARI</span></div>
+      <div class="stats-summary-grid">
+        <div class="stat-mini-card"><div id="statAvgDist" class="stat-mini-val">0.0</div><div class="stat-mini-lbl">ORT. KM</div></div>
+        <div class="stat-mini-card"><div id="statAvgPace" class="stat-mini-val">--'--"</div><div class="stat-mini-lbl">ORT. TEMPO</div></div>
+        <div class="stat-mini-card"><div id="statAvgCal" class="stat-mini-val">0</div><div class="stat-mini-lbl">ORT. KALORİ</div></div>
+      </div>
+      <div class="stats-summary-grid">
+        <div class="stat-mini-card"><div id="statTotalDist" class="stat-mini-val">0.0</div><div class="stat-mini-lbl">TOPLAM KM</div></div>
+        <div class="stat-mini-card"><div id="statTotalSteps" class="stat-mini-val">0</div><div class="stat-mini-lbl">TOPLAM ADIM</div></div>
+        <div class="stat-mini-card"><div id="statAvgPulse" class="stat-mini-val">--</div><div class="stat-mini-lbl">ORT. NABIZ</div></div>
+      </div>
+    </div>
+
+    <!-- SEKME 3: Profil -->
+    <div id="tabProfile" class="tab-section">
+      <div class="section-title"><span>KULLANICI BİLGİLERİ</span></div>
+      <div class="field-grid">
+        <div class="field-group"><label class="field-label">BOY (CM)</label><input type="number" id="profHeight" placeholder="178" /></div>
+        <div class="field-group"><label class="field-label">KİLO (KG)</label><input type="number" id="profWeight" placeholder="75" /></div>
+      </div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label class="field-label">CİNSİYET</label>
+          <select id="profGender"><option value="male">Erkek</option><option value="female">Kadın</option></select>
+        </div>
+        <div class="field-group"><label class="field-label">YAŞ</label><input type="number" id="profAge" placeholder="28" /></div>
+      </div>
+      <button class="btn-secondary" style="width:100%; min-height:44px; margin-top:6px;" onclick="saveUserProfile()">PROFİLİ KAYDET</button>
+    </div>
+
+    <!-- SEKME 4: Geçmiş -->
+    <div id="tabHistory" class="tab-section">
+      <div class="section-title">
+        <span>YÜRÜYÜŞ GEÇMİŞİ</span>
+        <button onclick="purgeAllHistory()" style="background:none; border:none; color:var(--danger); font-size:0.7rem; font-weight:800; cursor:pointer;">TÜMÜNÜ SİL</button>
+      </div>
+      <div id="historyContainer" class="history-card-list">
+        <div style="text-align:center; font-size:0.75rem; color:var(--text-muted); padding:16px;">Kayıt yok.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let systemPhase = 'IDLE';
+    let lastSavedSessionId = null;
+
+    let walkSession = {
+      startTime: null,
+      lastTimestamp: null,
+      seconds: 0,
+      meters: 0,
+      steps: 0,
+      lastLat: null,
+      lastLng: null,
+      lastAltitude: null,
+      initialAltitude: null,
+      elevationGain: 0,
+      pulses: { pre: null, during: [], post: null },
+      routePoints: [],
+      lastVibratedKm: 0,
+      weatherAlertDone: false
+    };
+
+    let timerInterval = null;
+    let gpsWatcher = null;
+    let screenWakeLock = null;
+
+    let lastMagnitude = 0;
+    const MOTION_STEP_THRESHOLD = 11.8;
+    let lastStepTimestamp = 0;
+
+    function calcDistanceHaversine(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function updatePhaseUI(newPhase) {
+      systemPhase = newPhase;
+      const phaseBadge = document.getElementById("sessionPhaseBadge");
+      const phaseSelect = document.getElementById("pulsePhaseSelect");
+      const startWeightInput = document.getElementById("inputStartWeight");
+      const endWeightInput = document.getElementById("inputEndWeight");
+      const savePostWeightBtn = document.getElementById("btnSavePostWeight");
+
+      if (systemPhase === 'IDLE') {
+        phaseBadge.textContent = "DURUM: BEKLEMEDE";
+        phaseBadge.style.color = "var(--text-muted)";
+        startWeightInput.disabled = false;
+        endWeightInput.disabled = true;
+        savePostWeightBtn.disabled = true;
+
+        phaseSelect.options[0].disabled = false;
+        phaseSelect.options[1].disabled = true;
+        phaseSelect.options[2].disabled = true;
+        phaseSelect.value = "pre";
+
+      } else if (systemPhase === 'WALKING') {
+        phaseBadge.textContent = "DURUM: YÜRÜYÜŞ SÜRÜYOR";
+        phaseBadge.style.color = "var(--success)";
+        startWeightInput.disabled = true;
+        endWeightInput.disabled = true;
+        savePostWeightBtn.disabled = true;
+
+        phaseSelect.options[0].disabled = true;
+        phaseSelect.options[1].disabled = false;
+        phaseSelect.options[2].disabled = true;
+        phaseSelect.value = "during";
+
+      } else if (systemPhase === 'FINISHED') {
+        phaseBadge.textContent = "DURUM: BİTTİ (KAYITLI)";
+        phaseBadge.style.color = "var(--accent)";
+        startWeightInput.disabled = true;
+        endWeightInput.disabled = false;
+        savePostWeightBtn.disabled = false;
+
+        phaseSelect.options[0].disabled = true;
+        phaseSelect.options[1].disabled = true;
+        phaseSelect.options[2].disabled = false;
+        phaseSelect.value = "post";
+      }
+    }
+
+    window.addEventListener("load", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js").catch(() => {});
+      }
+
+      loadStoredUserProfile();
+      refreshHistoryList();
+      computeAggregatedStatistics();
+      updatePhaseUI('IDLE');
+
+      const savedState = localStorage.getItem("pace_pro_v3_state");
+      if (savedState) {
+        try {
+          const recovered = JSON.parse(savedState);
+          if (recovered.active) {
+            const now = Date.now();
+            const gapSeconds = Math.max(0, Math.floor((now - recovered.lastTimestamp) / 1000));
+            walkSession = recovered;
+            walkSession.seconds += gapSeconds;
+
+            navigator.geolocation.getCurrentPosition((pos) => {
+              const curLat = pos.coords.latitude;
+              const curLng = pos.coords.longitude;
+              if (walkSession.lastLat && walkSession.lastLng) {
+                const gapMeters = calcDistanceHaversine(walkSession.lastLat, walkSession.lastLng, curLat, curLng);
+                if ((gapMeters / (gapSeconds || 1)) < 3.4) {
+                  walkSession.meters += gapMeters;
+                }
+              }
+              walkSession.lastLat = curLat;
+              walkSession.lastLng = curLng;
+              walkSession.lastTimestamp = now;
+              resumeActiveWalkUI();
+            }, () => resumeActiveWalkUI(), { enableHighAccuracy: true });
+
+            triggerDeviceVibration([200, 100, 200]);
+          }
+        } catch(e) {}
+      }
+    });
+
+    function triggerDeviceVibration(pattern) {
+      if ("vibrate" in navigator) {
+        navigator.vibrate(pattern);
+      }
+    }
+
+    function bindHardwareSensors() {
+      if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", (e) => {
+          let heading = e.alpha;
+          if (e.webkitCompassHeading) heading = e.webkitCompassHeading;
+          if (heading !== null && heading !== undefined) {
+            const deg = Math.round(heading);
+            document.getElementById("valAzimuth").textContent = `${String(deg).padStart(3, "0")}°`;
+            const dirs = ["K", "KD", "D", "GD", "G", "GB", "B", "KB"];
+            document.getElementById("valCardinal").textContent = dirs[Math.round(deg / 45) % 8];
+          }
+        }, true);
+      }
+
+      if (window.DeviceMotionEvent) {
+        window.addEventListener("devicemotion", (e) => {
+          if (systemPhase !== 'WALKING') return;
+          const acc = e.accelerationIncludingGravity;
+          if (!acc) return;
+          const mag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+          const now = Date.now();
+          if (mag > MOTION_STEP_THRESHOLD && lastMagnitude <= MOTION_STEP_THRESHOLD && (now - lastStepTimestamp) > 260) {
+            walkSession.steps++;
+            lastStepTimestamp = now;
+            document.getElementById("uiSteps").textContent = walkSession.steps;
+          }
+          lastMagnitude = mag;
+        }, true);
+      }
+    }
+
+    function resumeActiveWalkUI() {
+      updatePhaseUI('WALKING');
+      const btn = document.getElementById("btnMainToggle");
+      btn.textContent = "YÜRÜYÜŞÜ BİTİR VE KAYDET 🛑";
+      btn.classList.add("running");
+      startHardwareEngines();
+    }
+
+    async function handleWalkToggle() {
+      if (systemPhase !== 'WALKING') {
+        if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+          try { await DeviceOrientationEvent.requestPermission(); } catch (e) {}
+        }
+        if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+          try { await DeviceMotionEvent.requestPermission(); } catch (e) {}
+        }
+
+        if (!navigator.geolocation) {
+          alert("GPS donanımı bulunamadı.");
+          return;
+        }
+
+        lastSavedSessionId = null;
+
+        walkSession.startTime = Date.now();
+        walkSession.lastTimestamp = Date.now();
+        walkSession.seconds = 0;
+        walkSession.meters = 0;
+        walkSession.steps = 0;
+        walkSession.elevationGain = 0;
+        walkSession.initialAltitude = null;
+        walkSession.routePoints = [];
+        walkSession.lastVibratedKm = 0;
+        walkSession.weatherAlertDone = false;
+        walkSession.pulses.pre = null;
+        walkSession.pulses.during = [];
+        walkSession.pulses.post = null;
+
+        document.getElementById("inputEndWeight").value = "";
+        updatePulseDisplays();
+        updatePhaseUI('WALKING');
+
+        const btn = document.getElementById("btnMainToggle");
+        btn.textContent = "YÜRÜYÜŞÜ BİTİR VE KAYDET 🛑";
+        btn.classList.add("running");
+
+        triggerDeviceVibration([150]);
+        bindHardwareSensors();
+        startHardwareEngines();
+      } else {
+        finalizeAndStoreWalk();
+      }
+    }
+
+    function startHardwareEngines() {
+      if ("wakeLock" in navigator) {
+        navigator.wakeLock.request("screen").then(s => { screenWakeLock = s; }).catch(() => {});
+      }
+
+      timerInterval = setInterval(() => {
+        walkSession.seconds++;
+        walkSession.lastTimestamp = Date.now();
+        updateHUD();
+        localStorage.setItem("pace_pro_v3_state", JSON.stringify({ ...walkSession, active: true }));
+      }, 1000);
+
+      gpsWatcher = navigator.geolocation.watchPosition(handleGpsTick, () => {
+        const badge = document.getElementById("gpsStateBadge");
+        badge.textContent = "GPS KESİLDİ";
+        badge.style.background = "var(--warn)";
+      }, { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 });
+    }
+
+    function handleGpsTick(pos) {
+      const { latitude, longitude, accuracy, speed, altitude } = pos.coords;
+      if (accuracy > 30) return;
+
+      const badge = document.getElementById("gpsStateBadge");
+      badge.textContent = "GPS BAĞLI";
+      badge.style.background = "var(--success)";
+
+      if (altitude !== null) {
+        document.getElementById("valAltitude").textContent = Math.round(altitude);
+        if (walkSession.initialAltitude === null) {
+          walkSession.initialAltitude = altitude;
+        } else if (altitude > walkSession.lastAltitude) {
+          walkSession.elevationGain += (altitude - walkSession.lastAltitude);
+          document.getElementById("valElevationGain").textContent = `+${Math.round(walkSession.elevationGain)}`;
+        }
+      }
+
+      if (!walkSession.weatherAlertDone) {
+        queryAtmosphericConditions(latitude, longitude);
+      }
+
+      if (walkSession.lastLat && walkSession.lastLng) {
+        const d = calcDistanceHaversine(walkSession.lastLat, walkSession.lastLng, latitude, longitude);
+        if (d > 2.0 && d < 40.0) {
+          walkSession.meters += d;
+
+          const currentKmMarker = Math.floor(walkSession.meters / 1000);
+          if (currentKmMarker > walkSession.lastVibratedKm) {
+            triggerDeviceVibration([200, 100, 200]);
+            walkSession.lastVibratedKm = currentKmMarker;
+          }
+
+          walkSession.routePoints.push({
+            lat: latitude,
+            lon: longitude,
+            ele: altitude || 0,
+            time: new Date().toISOString()
+          });
+        }
+      } else {
+        walkSession.routePoints.push({
+          lat: latitude,
+          lon: longitude,
+          ele: altitude || 0,
+          time: new Date().toISOString()
+        });
+      }
+
+      walkSession.lastLat = latitude;
+      walkSession.lastLng = longitude;
+      walkSession.lastAltitude = altitude;
+
+      const spdKmh = speed && speed > 0 ? (speed * 3.6) : 0;
+      document.getElementById("uiSpeed").textContent = spdKmh.toFixed(1);
+    }
+
+    function updateHUD() {
+      const mins = String(Math.floor(walkSession.seconds / 60)).padStart(2, "0");
+      const secs = String(walkSession.seconds % 60).padStart(2, "0");
+      document.getElementById("uiDuration").textContent = `${mins}:${secs}`;
+
+      const km = walkSession.meters / 1000;
+      document.getElementById("uiDistance").textContent = km.toFixed(2);
+
+      const userW = parseFloat(document.getElementById("inputStartWeight").value) ||
+                    parseFloat(document.getElementById("profWeight").value) || 75;
+      const cal = Math.round(3.8 * userW * (walkSession.seconds / 3600));
+      document.getElementById("uiCalories").textContent = cal;
+
+      if (walkSession.meters >= 30) {
+        const totalMins = walkSession.seconds / 60;
+        const p = totalMins / km;
+        if (isFinite(p) && p < 45) {
+          const pMin = Math.floor(p);
+          const pSec = Math.round((p - pMin) * 60);
+          document.getElementById("uiPace").textContent = `${pMin}'${String(pSec).padStart(2, "0")}"`;
+        }
+      } else {
+        document.getElementById("uiPace").textContent = `--'--"`;
+      }
+    }
+
+    async function queryAtmosphericConditions(lat, lon) {
+      walkSession.weatherAlertDone = true;
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation`);
+        const data = await res.json();
+        const rain = data.current.precipitation;
+        const temp = data.current.temperature_2m;
+
+        if (rain > 0.1) {
+          triggerDeviceVibration([400, 150, 400]);
+          displayAlertBanner(`🌧️ HAVA DURUMU: Yağmur tespit edildi.`);
+        } else if (temp >= 33) {
+          triggerDeviceVibration([400, 150, 400]);
+          displayAlertBanner(`☀️ AŞIRI SICAKLIK (${temp}°C): Sıvı alımını artırın.`);
+        }
+      } catch(e) {}
+    }
+
+    function displayAlertBanner(msg) {
+      document.getElementById("alertMessage").textContent = msg;
+      document.getElementById("alertBanner").style.display = "flex";
+    }
+
+    function dismissAlert() {
+      document.getElementById("alertBanner").style.display = "none";
+    }
+
+    function recordPhasePulse() {
+      const phase = document.getElementById("pulsePhaseSelect").value;
+      const val = parseInt(document.getElementById("inputPulseValue").value);
+
+      if (isNaN(val) || val < 40 || val > 220) {
+        alert("Lütfen 40-220 arası geçerli bir nabız giriniz.");
+        return;
+      }
+
+      if (phase === "pre" && systemPhase !== 'IDLE') {
+        alert("Yürüyüş başladıktan sonra başlangıç nabzı eklenemez.");
+        return;
+      }
+      if (phase === "during" && systemPhase !== 'WALKING') {
+        alert("Yürüyüş aktif değilken 'sırasında' nabzı eklenemez.");
+        return;
+      }
+      if (phase === "post" && systemPhase !== 'FINISHED') {
+        alert("Yürüyüş henüz tamamlanmadan bitiş nabzı eklenemez.");
+        return;
+      }
+
+      if (phase === "pre") walkSession.pulses.pre = val;
+      else if (phase === "during") walkSession.pulses.during.push(val);
+      else if (phase === "post") {
+        walkSession.pulses.post = val;
+        patchLatestArchiveRecord({ postPulse: val });
+      }
+
+      document.getElementById("inputPulseValue").value = "";
+      updatePulseDisplays();
+      alert(`Nabız kaydedildi: ${val} BPM`);
+    }
+
+    function updatePulseDisplays() {
+      document.getElementById("dispPrePulse").textContent = walkSession.pulses.pre ? `${walkSession.pulses.pre}` : "--";
+      if (walkSession.pulses.during.length > 0) {
+        const avg = Math.round(walkSession.pulses.during.reduce((a,b)=>a+b,0) / walkSession.pulses.during.length);
+        document.getElementById("dispLiveAvgPulse").textContent = `${avg}`;
+      } else {
+        document.getElementById("dispLiveAvgPulse").textContent = "--";
+      }
+      document.getElementById("dispPostPulse").textContent = walkSession.pulses.post ? `${walkSession.pulses.post}` : "--";
+    }
+
+    function updatePostWeightRecord() {
+      const preW = parseFloat(document.getElementById("inputStartWeight").value);
+      const postW = parseFloat(document.getElementById("inputEndWeight").value);
+
+      if (isNaN(postW) || postW < 30 || postW > 250) {
+        alert("Lütfen geçerli bir bitiş kilosu giriniz.");
+        return;
+      }
+
+      let deltaW = "--";
+      if (!isNaN(preW) && preW > 30) {
+        if (postW >= preW) {
+          deltaW = "0.00 kg (Kayıp Yok)";
+        } else {
+          deltaW = (preW - postW).toFixed(2) + " kg";
+        }
+      }
+
+      patchLatestArchiveRecord({ weightLoss: deltaW });
+      alert(`Bitiş tartımı işlendi. Sıvı/Kilo farkı: ${deltaW}`);
+    }
+
+    function patchLatestArchiveRecord(fields) {
+      if (!lastSavedSessionId) return;
+      let history = JSON.parse(localStorage.getItem("pace_walk_history") || "[]");
+      const item = history.find(h => h.id === lastSavedSessionId);
+      if (item) {
+        if (fields.weightLoss) item.weightLoss = fields.weightLoss;
+        if (fields.postPulse) item.pulses.post = fields.postPulse;
+        localStorage.setItem("pace_walk_history", JSON.stringify(history));
+        refreshHistoryList();
+      }
+    }
+
+    function finalizeAndStoreWalk() {
+      clearInterval(timerInterval);
+      if (gpsWatcher) navigator.geolocation.clearWatch(gpsWatcher);
+      if (screenWakeLock) screenWakeLock.release();
+
+      updatePhaseUI('FINISHED');
+
+      const preW = parseFloat(document.getElementById("inputStartWeight").value);
+      const now = new Date();
+      const dateStr = `${String(now.getDate()).padStart(2,"0")}.${String(now.getMonth()+1).padStart(2,"0")} ${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+
+      const duringPulseAvg = walkSession.pulses.during.length > 0 
+        ? Math.round(walkSession.pulses.during.reduce((a,b)=>a+b,0) / walkSession.pulses.during.length) 
+        : null;
+
+      lastSavedSessionId = "walk_" + Date.now();
+
+      const walkRecord = {
+        id: lastSavedSessionId,
+        date: dateStr,
+        duration: document.getElementById("uiDuration").textContent,
+        seconds: walkSession.seconds,
+        km: parseFloat((walkSession.meters / 1000).toFixed(2)),
+        steps: walkSession.steps,
+        cal: parseInt(document.getElementById("uiCalories").textContent) || 0,
+        pace: document.getElementById("uiPace").textContent,
+        weightLoss: "--",
+        pulses: {
+          pre: walkSession.pulses.pre,
+          duringAvg: duringPulseAvg,
+          post: null
+        },
+        route: walkSession.routePoints
+      };
+
+      let history = JSON.parse(localStorage.getItem("pace_walk_history") || "[]");
+      history.unshift(walkRecord);
+      localStorage.setItem("pace_walk_history", JSON.stringify(history));
+      localStorage.removeItem("pace_pro_v3_state");
+
+      const btn = document.getElementById("btnMainToggle");
+      btn.textContent = "YENİ YÜRÜYÜŞ BAŞLAT 🚶‍♂️";
+      btn.classList.remove("running");
+
+      triggerDeviceVibration([300]);
+      refreshHistoryList();
+      computeAggregatedStatistics();
+      alert(`Yürüyüş Kaydedildi!\nMesafe: ${walkRecord.km} KM | Kalori: ${walkRecord.cal} KCAL\n\nİsterseniz Nabız & Tartım sekmesinden bitiş kilonuzu ve toparlanma nabzınızı ekleyebilirsiniz.`);
+    }
+
+    function refreshHistoryList() {
+      const history = JSON.parse(localStorage.getItem("pace_walk_history") || "[]");
+      const container = document.getElementById("historyContainer");
+
+      if (history.length === 0) {
+        container.innerHTML = `<div style="text-align:center; font-size:0.75rem; color:var(--text-muted); padding:16px;">Kayıt yok.</div>`;
+        return;
+      }
+
+      container.innerHTML = history.map(item => `
+        <div class="history-item">
+          <div class="hist-info">
+            <span class="hist-date">${item.date} • ${item.duration}</span>
+            <div class="hist-metrics">
+              <span>${item.km} KM</span>
+              <span style="color:var(--text-muted);">•</span>
+              <span>${item.cal} KCAL</span>
+              <span style="color:var(--text-muted);">•</span>
+              <span>${item.steps} ADIM</span>
+            </div>
+            <span class="hist-sub">Tempo: ${item.pace} | Sıvı: ${item.weightLoss} | Nabız (Sırası): ${item.pulses.duringAvg ? item.pulses.duringAvg + ' bpm' : '--'}</span>
+          </div>
+          <div class="hist-actions">
+            <button class="btn-gpx-item" onclick="downloadSingleGPX('${item.id}')">GPX</button>
+            <button class="btn-delete-item" onclick="deleteSingleHistoryItem('${item.id}')">SİL</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function deleteSingleHistoryItem(id) {
+      if (confirm("Bu kayıt kalıcı olarak silinecek. Emin misiniz?")) {
+        let history = JSON.parse(localStorage.getItem("pace_walk_history") || "[]");
+        history = history.filter(item => item.id !== id);
+        localStorage.setItem("pace_walk_history", JSON.stringify(history));
+        refreshHistoryList();
+        computeAggregatedStatistics();
+      }
+    }
+
+    function purgeAllHistory() {
+      if (confirm("Tüm geçmiş silinsin mi? Bu işlem geri alınamaz.")) {
+        localStorage.removeItem("pace_walk_history");
+        refreshHistoryList();
+        computeAggregatedStatistics();
+      }
+    }
+
+    function computeAggregatedStatistics() {
+      const history = JSON.parse(localStorage.getItem("pace_walk_history") || "[]");
+      if (history.length === 0) {
+        document.getElementById("statAvgDist").textContent = "0.0";
+        document.getElementById("statAvgPace").textContent = "--'--\"";
+        document.getElementById("statAvgCal").textContent = "0";
+        document.getElementById("statTotalDist").textContent = "0.0";
+        document.getElementById("statTotalSteps").textContent = "0";
+        document.getElementById("statAvgPulse").textContent = "--";
+        return;
+      }
+
+      const totalDist = history.reduce((sum, h) => sum + (h.km || 0), 0);
+      const totalCal = history.reduce((sum, h) => sum + (h.cal || 0), 0);
+      const totalSteps = history.reduce((sum, h) => sum + (h.steps || 0), 0);
+      const totalSecs = history.reduce((sum, h) => sum + (h.seconds || 0), 0);
+
+      const avgDist = totalDist / history.length;
+      const avgCal = Math.round(totalCal / history.length);
+
+      if (totalDist >= 0.05) {
+        const avgPaceMinutes = (totalSecs / 60) / totalDist;
+        if (isFinite(avgPaceMinutes)) {
+          const pM = Math.floor(avgPaceMinutes);
+          const pS = Math.round((avgPaceMinutes - pM) * 60);
+          document.getElementById("statAvgPace").textContent = `${pM}'${String(pS).padStart(2, "0")}"`;
+        }
+      }
+
+      const pulsesWithVal = history.map(h => h.pulses && h.pulses.duringAvg).filter(Boolean);
+      if (pulsesWithVal.length > 0) {
+        const avgPulse = Math.round(pulsesWithVal.reduce((a, b) => a + b, 0) / pulsesWithVal.length);
+        document.getElementById("statAvgPulse").textContent = `${avgPulse} bpm`;
+      } else {
+        document.getElementById("statAvgPulse").textContent = "--";
+      }
+
+      document.getElementById("statAvgDist").textContent = avgDist.toFixed(2);
+      document.getElementById("statAvgCal").textContent = avgCal;
+      document.getElementById("statTotalDist").textContent = totalDist.toFixed(1);
+      document.getElementById("statTotalSteps").textContent = totalSteps;
+    }
+
+    function downloadSingleGPX(id) {
+      const history = JSON.parse(localStorage.getItem("pace_walk_history") || "[]");
+      const item = history.find(h => h.id === id);
+      if (!item || !item.route || item.route.length === 0) {
+        alert("Bu kayda ait GPS rota koordinatı bulunamadı.");
+        return;
+      }
+
+      const gpxHeader = '<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="PACE-PRO" xmlns="http://www.topografix.com/GPX/1/1">\n  <trk>\n    <name>YURUYUS_' + item.id + '</name>\n    <trkseg>\n';
+      const gpxFooter = '    </trkseg>\n  </trk>\n</gpx>';
+      
+      let gpxBody = '';
+      item.route.forEach(pt => {
+        gpxBody += `      <trkpt lat="${pt.lat}" lon="${pt.lon}">\n        <ele>${pt.ele}</ele>\n        <time>${pt.time}</time>\n      </trkpt>\n`;
+      });
+
+      const fullGpx = gpxHeader + gpxBody + gpxFooter;
+      const blob = new Blob([fullGpx], { type: "application/gpx+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `${item.id}.gpx`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 300);
+    }
+
+    function saveUserProfile() {
+      const d = {
+        height: document.getElementById("profHeight").value,
+        weight: document.getElementById("profWeight").value,
+        gender: document.getElementById("profGender").value,
+        age: document.getElementById("profAge").value
+      };
+      localStorage.setItem("pace_user_profile", JSON.stringify(d));
+      alert("Kullanıcı profili kaydedildi.");
+    }
+
+    function loadStoredUserProfile() {
+      const d = JSON.parse(localStorage.getItem("pace_user_profile") || "{}");
+      if (d.height) document.getElementById("profHeight").value = d.height;
+      if (d.weight) {
+        document.getElementById("profWeight").value = d.weight;
+        document.getElementById("inputStartWeight").value = d.weight;
+      }
+      if (d.gender) document.getElementById("profGender").value = d.gender;
+      if (d.age) document.getElementById("profAge").value = d.age;
+    }
+
+    function showTab(tabId, btnElem) {
+      document.querySelectorAll(".tab-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-seg-item").forEach(b => b.classList.remove("active"));
+      
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add("active");
+      if (btnElem) btnElem.classList.add("active");
+    }
+
+    function toggleThemeMode() {
+      const cur = document.documentElement.getAttribute("data-theme");
+      document.documentElement.setAttribute("data-theme", cur === "light" ? "dark" : "light");
+    }
+  </script>
+</body>
+</html>
