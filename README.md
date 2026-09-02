@@ -27,6 +27,7 @@ bGroup_Framework:
   Developer: "Batuhan Bayatlı"
   Architecture: "Serverless PWA & Hardware-Assisted Telemetry"
   Ecosystem_Scope: "bGroup Core Technologies"
+```
 
 🎖️ Operasyonel Mimari ve Teknik Kabiliyetler
 1. 📊 Canlı HUD & Kinetik Telemetri
