@@ -1,31 +1,52 @@
-# 🧭 PACE Tracker Pro // bGroup Kinetik İntikal ve Yürüyüş Terminali
+# 🧭 PACE Tracker Pro 
+> *bGroup Kinetik İntikal ve Yürüyüş Terminali*
 
-**PACE Tracker Pro**, bGroup ekosistemi bünyesinde **Batuhan Bayatlı** tarafından geliştirilmiş; iPhone ve Android cihazlar için optimize edilmiş saf HTML5, CSS3 ve JavaScript tabanlı profesyonel bir PWA (Progressive Web App) yürüyüş ve intikal takip asistanıdır.
+[![PWA Ready](https://img.shields.io/badge/PWA-Ready-success?style=for-the-badge)](https://pace-tracker-pro.vercel.app/)
+[![JavaScript](https://img.shields.io/badge/Vanilla-JS-yellow?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-## 🚀 Öne Çıkan Özellikler
+**PACE Tracker Pro**, akıllı telefonları profesyonel birer kinetik intikal ve sahra telemetri terminaline dönüştüren, harici API maliyeti/bağımlılığı olmaksızın saf web standartlarıyla (HTML5, CSS3, Modern JS) inşa edilmiş yüksek performanslı bir **PWA (Progressive Web App)** çözümüdür. 
 
-* **Mobil Uyumlu HUD Ekranı:** Süre, mesafe (km), anlık hız, ortalama tempo, yakılan kalori ve donanımsal adımsayar verilerini devasa ve net kartlarla gösterir.
-* **PACE Çökme Koruması (State-Persistence):** Telefonun şarjı bitse veya işletim sistemi sekmeyi kapatsa bile kurtarma motoru ölü zamanı ve mesafeyi telafi ederek oturumu kaldığı yerden kurtarır.
-* **3 Fazlı Nabız Takibi:** Yürüyüş öncesi (dinlenme), yürüyüş sırasında (aktif ortalama) ve yürüyüş sonrasını (toparlanma) ayrı ayrı kaydeder.
-* **Tartım ve Sıvı Kaybı Analizi:** Yürüyüş öncesi ve sonrası kilo farkından dehidrasyon (ter/sıvı kaybı) miktarını hesaplar.
-* **Donanımsal Sensör Entegrasyonu:** Cihazın manyetometresiyle anlık pusula yönü (kerteriz) ve ivmeölçer ile adım kadansı sayımı.
-* **GPX Rota İhracı:** Tamamlanan yürüyüşlerin rota koordinatlarını Garmin, Strava veya CBS yazılımlarına uyumlu `.gpx` dosyası olarak indirme imkanı.
-* **Hava Durumu Güvenlik Kalkanı:** Open-Meteo altyapısıyla intikal sırasında yağmur veya aşırı sıcaklık uyarıları üretir.
-* **Açık / Koyu Tema:** Sahra beji aydınlık tema ile gece operasyonları/akşam yürüyüşleri için AMOLED uyumlu koyu tema desteği.
+🔗 **Canlı Sistem:** [https://pace-tracker-pro.vercel.app/](https://pace-tracker-pro.vercel.app/)
 
-## 📱 PWA Olarak Telefona Kurulum
+---
 
-Canlı sisteme [https://pace-tracker-pro.vercel.app/](https://pace-tracker-pro.vercel.app/) adresinden ulaştıktan sonra:
-1. **iOS (Safari):** Paylaş butonuna bas ve **"Ana Ekrana Ekle"** seçeneğini seç.
-2. **Android (Chrome):** Sağ üst menüden **"Uygulamayı Yükle"** veya **"Ana Ekrana Ekle"** de.
+## 🎖️ Operasyonel Mimari & Özellikler
 
-Uygulama tam ekran ve çevrimdışı (offline) olarak yerel bir mobil uygulama gibi çalışacaktır.
+### 1. Canlı HUD ve Kinetik Telemetri
+* **Optimizasyonlu HUD:** Süre, kat edilen mesafe (km), anlık hız, ortalama tempo (`dk/km`), yakılan kalori (MET tabanlı) ve donanımsal adımları devasa tipografiyle anlık olarak yansıtır.
+* **Taktik Yön & Rakım:** Cihazın manyetometresi ve ivmeölçeri üzerinden anlık pusula kerterizi (0°-360°), deniz seviyesinden rakım ve tırmanış kazancı (`+M`) takibi yapar.
 
-## 🏢 Geliştirici & Ekosistem
-Bu yazılım, **bGroup** çatısı altında bağımsız bir teknoloji girişimi olarak tasarlanmış ve kodlanmıştır.
+### 2. PACE Çökme Koruma Motoru (State-Persistence)
+> *Operasyonel Güvenilirlik Standardı*
+* Cihazın şarjı bittiğinde, tarayıcı belleği temizlediğinde veya işletim sistemi uygulamayı arka planda kapattığında sistem devreye girer. 
+* Yeniden açıldığında geçen "ölü zamanı" ve GPS delta mesafesini telafi ederek seansı kusursuz bir şekilde kurtarır ve kaldığı yerden devam ettirir.
 
-## 📂 Dosya Yapısı
-Depo kök dizininde şu üç dosya yer almalıdır:
-- `index.html` (Ana arayüz, tüm JavaScript motoru ve iOS/PWA ikon yapılandırması)
-- `manifest.json` (PWA uygulama manifestosu)
-- `sw.js` (Çevrimdışı önbellek için Service Worker)
+### 3. Biyometrik & Sıhhi Takip Protokolü
+* **3 Fazlı Nabız Analizi:** Yürüyüş öncesi (dinlenme), yürüyüş sırasında (aktif seans ortalaması) ve yürüyüş sonrası (toparlanma) nabız değerlerini faz güvenlik kurallarına göre ayrı ayrı mühürler.
+* **Dehidrasyon & Tartım Analizi:** Yürüyüş öncesi ve sonrası vücut ağırlığı mukayesesiyle ter/sıvı kaybını otomatik hesaplar.
+
+### 4. Harici Bağımsızlık & Donanım Entegrasyonu
+* **Sıfır Sunucu Bağımlılığı:** Veriler doğrudan tarayıcının yerel güvenli alanında (`localStorage`) şifresiz ve hızlı bir şekilde saklanır.
+* **Donanımsal Adımsayar:** GPS uydularının kör noktada kaldığı tünel veya kapalı alanlarda 3 eksenli ivmeölçer (DeviceMotion) sensörüyle adımları saymaya devam eder.
+* **GPX Rota İhracı:** Tamamlanan yürüyüşleri zaman damgalı `.gpx` formatında indirerek Garmin, Strava veya CBS yazılımlarına aktarma imkanı sağlar.
+* **Atmosferik Güvenlik Kalkanı:** Açık kaynaklı Open-Meteo entegrasyonuyla intikal esnasında yaşanabilecek ani yağış veya aşırı sıcaklık (`>=33°C`) risklerine karşı tek seferlik uyarı mekanizması barındırır.
+
+---
+
+## 📱 PWA Olarak Cihaza Kurulum
+
+Uygulamayı tarayıcı çubuklarından arındırılmış tam ekran yerel bir mobil uygulama gibi kullanmak için:
+
+* **iOS (Safari):** Adresi açın $\rightarrow$ Paylaş menüsüne dokunun $\rightarrow$ **"Ana Ekrana Ekle"** deyin.
+* **Android (Chrome):** Adresi açın $\rightarrow$ Sağ üst menüden **"Uygulamayı Yükle"** veya **"Ana Ekrana Ekle"** seçeneğini seçin.
+
+---
+
+## 📂 Depo Dosya Mimarisi
+
+```text
+📦 pace-tracker-pro
+ ┣ 📜 index.html        # Ana arayüz, telemetri motoru ve PWA ikon yapılandırması
+ ┣ 📜 manifest.json     # Uygulama manifestosu (Standalone & Mobil Kimliği)
+ ┗ 📜 sw.js             # Service Worker (Çevrimdışı / Sahra önbellek protokolü)
