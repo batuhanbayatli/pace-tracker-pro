@@ -70,5 +70,5 @@ Uygulamayı tarayıcı çubuklarından arındırılmış tam ekran yerel bir mob
 Bu yazılım ve mimari, bGroup ekosistemi çatısı altında Batuhan Bayatlı tarafından bağımsız bir teknoloji girişimi olarak tasarlanmış, kodlanmış ve sahaya sürülmüştür.
 
 <p align="center">
-  <b>bGroup Core Technologies © 2026 // Tüm hakları saklıdır.</b>
+  <b>bGroup * Batuhan Bayatlı © 2026 // Tüm hakları saklıdır.</b>
 </p>
